@@ -15,7 +15,6 @@ final class MapViewController: UIViewController {
         map.delegate = self
         return map
     }()
-
     private let viewModel: MapViewModel
 
     required init?(coder: NSCoder) {
@@ -29,7 +28,7 @@ final class MapViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupMap()
+        setupUI()
         addMarkers()
     }
 }
@@ -37,15 +36,20 @@ final class MapViewController: UIViewController {
 extension MapViewController: GMSMapViewDelegate {
     func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
         viewModel.track(title: marker.title, at: marker.position)
+        viewModel.printTrackerInfo()
 
         return false
     }
 }
 
 private extension MapViewController {
-    func setupMap() {
+    func setupUI() {
         view.backgroundColor = .white
         view.addSubview(mapView)
+        setupMap()
+    }
+
+    func setupMap() {
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         mapView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
@@ -55,6 +59,7 @@ private extension MapViewController {
 
     func addMarkers() {
         let markers = viewModel.loadMarkers()
+
         markers.forEach {
             self.createMarker(basedOn: $0)
         }

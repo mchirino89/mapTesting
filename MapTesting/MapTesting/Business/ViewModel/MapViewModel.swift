@@ -8,10 +8,12 @@
 import CoreLocation
 import MauriUtils
 
-final class MapViewModel: NSObject {
-    private var tracker: [String: Tracking]
+typealias EventTracker = [String: Tracking]
 
-    init(tracker: [String: Tracking] = [:]) {
+final class MapViewModel: NSObject {
+    private var tracker: EventTracker
+
+    init(tracker: EventTracker = [:]) {
         self.tracker = tracker
         super.init()
     }
@@ -26,6 +28,14 @@ final class MapViewModel: NSObject {
         } else {
             tracker["\(coordinates)"]?.numberOfTaps += 1
         }
+    }
+
+    func printTrackerInfo() {
+        print("===============")
+        tracker.forEach {
+            print("Tapped \($1.numberOfTaps) times on \($1.tappedMarker)")
+        }
+        print("===============")
     }
 
     /// Load a marker array in memory from a JSON file within the project's main bundle
