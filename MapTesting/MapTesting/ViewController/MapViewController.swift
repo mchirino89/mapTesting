@@ -5,27 +5,32 @@
 //  Created by Mauricio Chirino on 26/10/20.
 //
 
-import GoogleMaps
+import CoreLocation
+import UIKit
 
 final class MapViewController: UIViewController {
-    private lazy var mapView: GMSMapView = {
-        let map = GMSMapView(frame: view.frame, camera: GMSCameraPosition(latitude: -34.8,
-                                                                          longitude: -56.1,
-                                                                          zoom: 10))
-        map.delegate = self
-        return map
-    }()
     private let viewModel: MapViewModel
+    private let mapContainer: MapViewProvidable
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    init(viewModel: MapViewModel) {
+    init(viewModel: MapViewModel, mapContainer: MapViewProvidable = MapViewProvider()) {
         self.viewModel = viewModel
+        self.mapContainer = mapContainer
         super.init(nibName: nil, bundle: nil)
     }
+}
 
+extension MapViewController: MapProviderDelegate {
+    func tapMarker(titled: String?, at coordinate: CLLocationCoordinate2D) {
+        viewModel.track(title: titled, at: coordinate)
+        viewModel.printTrackerInfo()
+    }
+}
+
+extension MapViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -33,43 +38,28 @@ final class MapViewController: UIViewController {
     }
 }
 
-extension MapViewController: GMSMapViewDelegate {
-    func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
-        viewModel.track(title: marker.title, at: marker.position)
-        viewModel.printTrackerInfo()
-
-        return false
-    }
-}
-
 private extension MapViewController {
     func setupUI() {
         view.backgroundColor = .white
-        view.addSubview(mapView)
+        view.addSubview(mapContainer.mapView)
         setupMap()
     }
 
     func setupMap() {
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-        mapView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
-        mapView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
-        mapView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
+        mapContainer.animate(to: viewModel.cameraPosition)
+        mapContainer.setDelegate(self)
+        mapContainer.mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapContainer.mapView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+        mapContainer.mapView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
+        mapContainer.mapView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+        mapContainer.mapView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
     }
 
     func addMarkers() {
         let markers = viewModel.loadMarkers()
 
         markers.forEach {
-            self.createMarker(basedOn: $0)
+            self.mapContainer.createMarker(basedOn: $0)
         }
-    }
-
-    func createMarker(basedOn markerInfo: MarkerInfoDTO) {
-        let marker = GMSMarker()
-        marker.title = markerInfo.title
-        marker.snippet = markerInfo.snippet
-        marker.position = CLLocationCoordinate2D(latitude: markerInfo.latitude, longitude: markerInfo.longitude)
-        marker.map = mapView
     }
 }

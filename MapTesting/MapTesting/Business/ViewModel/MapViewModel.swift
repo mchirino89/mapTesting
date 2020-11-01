@@ -13,6 +13,11 @@ typealias EventTracker = [String: Tracking]
 final class MapViewModel: NSObject {
     private var tracker: EventTracker
 
+    /// Provides mock values for map's camera in order to center itself
+    var cameraPosition: MapCamera {
+        MapCamera(latitude: -34.8, longitude: -56.1, zoom: 10)
+    }
+
     init(tracker: EventTracker = [:]) {
         self.tracker = tracker
         super.init()
