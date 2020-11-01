@@ -6,7 +6,6 @@
 //
 
 import GoogleMaps
-import MauriUtils
 
 final class MapViewController: UIViewController {
     private lazy var mapView: GMSMapView = {
@@ -17,7 +16,16 @@ final class MapViewController: UIViewController {
         return map
     }()
 
-    private var tracker: [String: Tracking] = [:]
+    private let viewModel: MapViewModel
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    init(viewModel: MapViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,19 +36,9 @@ final class MapViewController: UIViewController {
 
 extension MapViewController: GMSMapViewDelegate {
     func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
-        if tracker["\(marker.position)"] == nil {
-            tracker["\(marker.position)"] = Tracking(tappedMarker: marker.title ?? "N/A", numberOfTaps: 1)
-        } else {
-            tracker["\(marker.position)"]?.numberOfTaps += 1
-        }
+        viewModel.track(title: marker.title, at: marker.position)
 
         return false
-    }
-
-    func mapView(_ mapView: GMSMapView, idleAt position: GMSCameraPosition) {
-        tracker.forEach {
-            print("Key: \($0) - Value: \($1.numberOfTaps) / \($1.tappedMarker)")
-        }
     }
 }
 
@@ -56,25 +54,9 @@ private extension MapViewController {
     }
 
     func addMarkers() {
-        let markers = loadMarkers()
+        let markers = viewModel.loadMarkers()
         markers.forEach {
             self.createMarker(basedOn: $0)
-        }
-    }
-
-    /// Load a marker array in memory from a JSON file within the project's main bundle
-    /// - Returns: Decoded `[MarkerInfo]`
-    func loadMarkers() -> [MarkerInfoDTO] {
-        guard let rawData = FileHelper.read(from: "Markers") else {
-            return []
-        }
-
-        do {
-            let markers:[MarkerInfoDTO] = try JSONDecodable.map(input: rawData)
-            return markers
-        } catch let error {
-            print(error.localizedDescription)
-            return []
         }
     }
 
