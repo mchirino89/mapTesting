@@ -46,6 +46,7 @@ extension MapViewController: GMSMapViewDelegate {
 
 private extension MapViewController {
     func setupMap() {
+        view.backgroundColor = .white
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
