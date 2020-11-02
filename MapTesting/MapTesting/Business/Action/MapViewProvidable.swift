@@ -11,13 +11,12 @@ protocol MapViewProvidable {
     /// Wrapper for Google maps (_GMSMapView_ inherits from `UIView`)
     var mapView: UIView { get }
 
+    /// Assigns the delegate listener
+    var delegate: MapProviderDelegate? { get set }
+
     /// Centers the camera point of view
     /// - Parameter cameraPosition: coordinates and zoom level to set the camera in
     func animate(to cameraPosition: MapCamera)
-
-    /// Assigns the delegate listener
-    /// - Parameter delegate: delegate object to interface with
-    func setDelegate(_ delegate: MapProviderDelegate)
 
     /// Creates and adds a pin marker to the map view
     /// - Parameter markerInfo: information needed for map's proper rendering

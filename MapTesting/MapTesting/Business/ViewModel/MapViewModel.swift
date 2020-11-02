@@ -20,7 +20,6 @@ final class MapViewModel: NSObject {
 
     init(tracker: EventTracker = [:]) {
         self.tracker = tracker
-        super.init()
     }
 
     /// Keeps track of marker's tap in a dictionary

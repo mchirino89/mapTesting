@@ -13,11 +13,10 @@ final class MapViewProvider: NSObject, MapViewProvidable {
     }()
 
     /// Propagates to its listeners the notifications received from Gmap SDK
-    private weak var delegate: MapProviderDelegate?
-
-    func setDelegate(_ delegate: MapProviderDelegate) {
-        self.delegate = delegate
-        mapWrapper?.delegate = self
+    weak var delegate: MapProviderDelegate? {
+        didSet {
+            mapWrapper?.delegate = self
+        }
     }
 
     func animate(to cameraPosition: MapCamera) {
@@ -30,7 +29,8 @@ final class MapViewProvider: NSObject, MapViewProvidable {
         let marker = GMSMarker()
         marker.title = markerInfo.title
         marker.snippet = markerInfo.snippet
-        marker.position = CLLocationCoordinate2D(latitude: markerInfo.latitude, longitude: markerInfo.longitude)
+        marker.position = CLLocationCoordinate2D(latitude: markerInfo.latitude,
+                                                 longitude: markerInfo.longitude)
         marker.map = mapWrapper
     }
 }

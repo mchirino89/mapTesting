@@ -10,7 +10,7 @@ import UIKit
 
 final class MapViewController: UIViewController {
     private let viewModel: MapViewModel
-    private let mapContainer: MapViewProvidable
+    private var mapContainer: MapViewProvidable
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -21,6 +21,13 @@ final class MapViewController: UIViewController {
         self.mapContainer = mapContainer
         super.init(nibName: nil, bundle: nil)
     }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        wireMapProvider()
+        setupUI()
+        addMarkers()
+    }
 }
 
 extension MapViewController: MapProviderDelegate {
@@ -30,24 +37,19 @@ extension MapViewController: MapProviderDelegate {
     }
 }
 
-extension MapViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        addMarkers()
-    }
-}
-
 private extension MapViewController {
+    func wireMapProvider() {
+        mapContainer.delegate = self
+        mapContainer.animate(to: viewModel.cameraPosition)
+    }
+
     func setupUI() {
         view.backgroundColor = .white
         view.addSubview(mapContainer.mapView)
-        setupMap()
+        setupMapUI()
     }
 
-    func setupMap() {
-        mapContainer.animate(to: viewModel.cameraPosition)
-        mapContainer.setDelegate(self)
+    func setupMapUI() {
         mapContainer.mapView.translatesAutoresizingMaskIntoConstraints = false
         mapContainer.mapView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         mapContainer.mapView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true

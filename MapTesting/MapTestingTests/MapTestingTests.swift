@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import GoogleMaps
+import CoreLocation
 @testable import MapTesting
 
 final class MapTestingTests: XCTestCase {
@@ -14,13 +14,13 @@ final class MapTestingTests: XCTestCase {
         // Given
         let spyTracker = EventTracker()
         let dummyModel = MapViewModel(tracker: spyTracker)
-        let mockMap = MapViewController(viewModel: dummyModel)
-
+        let mockMapController = MapViewController(viewModel: dummyModel,
+                                                  mapContainer: MapViewProviderFake())
         // When
-        _ = mockMap.view
-//        _ = mockMap.mapView(GMSMapView, didTap: GMSMarker)
-
+        mockMapController.viewDidLoad()
+        mockMapController.tapMarker(titled: "lorem ipsum",
+                                    at: CLLocationCoordinate2D(latitude: 34, longitude: -56))
         // Then
-        XCTAssertFalse(spyTracker.isEmpty)
+        XCTAssertNotEqual(spyTracker.count, 0)
     }
 }
