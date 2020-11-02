@@ -8,38 +8,24 @@
 import CoreLocation
 import MauriUtils
 
-typealias EventTracker = [String: Tracking]
-
 final class MapViewModel: NSObject {
-    private var tracker: EventTracker
+    private var trackingHandler: Trackable
 
     /// Provides mock values for map's camera in order to center itself
     var cameraPosition: MapCamera {
         MapCamera(latitude: -34.8, longitude: -56.1, zoom: 10)
     }
 
-    init(tracker: EventTracker = [:]) {
-        self.tracker = tracker
+    init(trackingHandler: Trackable = TrackingHandler()) {
+        self.trackingHandler = trackingHandler
     }
 
-    /// Keeps track of marker's tap in a dictionary
-    /// - Parameters:
-    ///   - title: marker's title
-    ///   - coordinates: coordinate where the marker is, which will be used as dictionary's key
     func track(title: String?, at coordinates: CLLocationCoordinate2D) {
-        if tracker["\(coordinates)"] == nil {
-            tracker["\(coordinates)"] = Tracking(tappedMarker: title ?? "N/A", numberOfTaps: 1)
-        } else {
-            tracker["\(coordinates)"]?.numberOfTaps += 1
-        }
+        trackingHandler.track(title: title, at: coordinates)
     }
 
     func printTrackerInfo() {
-        print("===============")
-        tracker.forEach {
-            print("Tapped \($1.numberOfTaps) times on \($1.tappedMarker)")
-        }
-        print("===============")
+        trackingHandler.showLogs()
     }
 
     /// Load a marker array in memory from a JSON file within the project's main bundle
